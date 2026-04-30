@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Planificador de Menús</title>
+    <meta name="theme-color" content="#e67e22">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        :root{--primary:#e67e22;--primary-dark:#d35400;--secondary:#2c3e50;--accent-green:#27ae60;--accent-red:#e74c3c;--accent-blue:#3498db;--bg:#fdf6ee;--card-bg:#fff;--text:#2c3e50;--text-light:#7f8c8d;--border:#e0d5c7;--shadow:0 4px 20px rgba(0,0,0,0.08);--shadow-hover:0 8px 30px rgba(0,0,0,0.12)}
+        *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-tap-highlight-color:transparent}
+        header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:20px 15px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px;box-shadow:0 4px 15px rgba(230,126,34,0.3)}
+        .header-left{display:flex;align-items:center;gap:12px}.header-left .logo{font-size:2rem}.header-left h1{font-size:1.2rem;font-weight:700}.header-left p{font-size:0.75rem;opacity:0.85}
+        .header-actions{display:flex;gap:8px;flex-wrap:wrap}
+        .btn{padding:8px 14px;border:none;border-radius:8px;font-family:'Poppins',sans-serif;font-size:0.8rem;font-weight:500;cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:5px}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(0,0,0,0.2)}.btn:active{transform:translateY(0)}
+        .btn-white{background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.3)}.btn-white:hover{background:rgba(255,255,255,0.35)}
+        .btn-danger{background:var(--accent-red);color:#fff}.btn-success{background:var(--accent-green);color:#fff}.btn-primary{background:var(--primary);color:#fff}.btn-blue{background:var(--accent-blue);color:#fff}
+        .week-nav{background:var(--card-bg);padding:12px 15px;display:flex;align-items:center;justify-content:center;gap:15px;box-shadow:0 2px 10px rgba(0,0,0,0.05);flex-wrap:wrap}
+        .week-nav .nav-btn{width:38px;height:38px;border-radius:50%;border:2px solid var(--border);background:var(--card-bg);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--text);transition:all .3s}
+        .week-nav .nav-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+        .week-info{text-align:center}.week-info .week-title{font-size:1rem;font-weight:600;color:var(--secondary)}.week-info .week-dates{font-size:0.75rem;color:var(--text-light)}
+        .week-selector select{padding:6px 10px;border-radius:6px;border:2px solid var(--border);font-family:'Poppins',sans-serif;font-size:0.8rem;background:var(--card-bg);color:var(--text);cursor:pointer}
+        .stats-bar{display:flex;gap:10px;padding:12px 15px;justify-content:center;flex-wrap:wrap}
+        .stat-card{background:var(--card-bg);padding:10px 15px;border-radius:10px;box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;min-width:130px}
+        .stat-card .stat-icon{font-size:1.2rem}.stat-card .stat-info .stat-number{font-size:1.1rem;font-weight:700;color:var(--primary-dark)}.stat-card .stat-info .stat-label{font-size:0.65rem;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px}
+        .main-container{padding:15px;max-width:1400px;margin:0 auto}
+        .menu-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+        .day-column{background:var(--card-bg);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;transition:all .3s}
+        .day-column:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px)}
+        .day-column.today{border:2px solid var(--primary)}
+        .day-header{background:linear-gradient(135deg,var(--secondary),#34495e);color:#fff;padding:12px 8px;text-align:center}
+        .day-column.today .day-header{background:linear-gradient(135deg,var(--primary),var(--primary-dark))}
+        .day-header .day-name{font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:1px}.day-header .day-date{font-size:0.7rem;opacity:0.8;margin-top:2px}
+        .day-body{padding:10px;display:flex;flex-direction:column;gap:8px}
+        .meal-section{position:relative}
+        .meal-label{font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;display:flex;align-items:center;gap:4px}
+        .meal-label.primer{color:var(--primary)}.meal-label.segundo{color:var(--accent-green)}.meal-label.postre{color:var(--accent-blue)}
+        .meal-input{width:100%;min-height:50px;padding:8px;border:2px solid var(--border);border-radius:8px;font-family:'Poppins',sans-serif;font-size:0.75rem;color:var(--text);resize:vertical;transition:all .3s;background:#fafafa;line-height:1.4}
+        .meal-input:focus{outline:none;border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px rgba(230,126,34,0.15)}
+        .meal-input.primer:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(230,126,34,0.15)}
+        .meal-input.segundo:focus{border-color:var(--accent-green);box-shadow:0 0 0 3px rgba(39,174,96,0.15)}
+        .meal-input.postre:focus{border-color:var(--accent-blue);box-shadow:0 0 0 3px rgba(52,152,219,0.15)}
+        .meal-input::placeholder{color:#ccc;font-style:italic;font-size:0.7rem}
+        .meal-divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:2px 0}
+        .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center;backdrop-filter:blur(4px)}
+        .modal-overlay.active{display:flex}
+        .modal{background:var(--card-bg);border-radius:16px;padding:25px;max-width:450px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:modalIn .3s ease}
+        @keyframes modalIn{from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}
+        .modal h3{font-size:1.1rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+        .modal p{font-size:0.85rem;color:var(--text-light);margin-bottom:15px}
+        .modal-actions{display:flex;gap:8px;justify-content:flex-end}
+        .share-options{display:flex;flex-direction:column;gap:8px}.share-options .btn{justify-content:center}
+        #sharePreview{margin-top:12px;padding:10px;background:#f8f9fa;border-radius:8px;font-family:monospace;font-size:0.75rem;white-space:pre-wrap;max-height:200px;overflow:auto;display:none;border:1px solid #eee}
+        .toast-container{position:fixed;bottom:20px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:8px}
+        .toast{background:var(--card-bg);padding:12px 18px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.15);display:flex;align-items:center;gap:8px;font-size:0.8rem;animation:toastIn .4s ease;border-left:4px solid var(--accent-green)}
+        .toast.error{border-left-color:var(--accent-red)}
+        @keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+        footer{text-align:center;padding:15px;color:var(--text-light);font-size:0.7rem}
+        .print-header{display:none}
+        @media print{header,.week-nav,.stats-bar,.header-actions,footer,.toast-container{display:none!important}body{background:#fff}.main-container{padding:10px}.menu-grid{grid-template-columns:repeat(7,1fr);gap:5px}.day-column{box-shadow:none;border:1px solid #ddd;page-break-inside:avoid}.meal-input{border:1px solid #eee;background:#fff;min-height:35px}.print-header{display:block!important;text-align:center;margin-bottom:20px}}
+        @media(max-width:1000px){.menu-grid{grid-template-columns:repeat(4,1fr)}}
+        @media(max-width:768px){header{padding:15px;flex-direction:column;text-align:center}.header-left{flex-direction:column}.week-nav{padding:10px}.main-container{padding:10px}.menu-grid{grid-template-columns:repeat(2,1fr);gap:8px}.stats-bar{padding:8px 10px}.stat-card{min-width:120px;padding:8px 12px}}
+        @media(max-width:480px){.menu-grid{grid-template-columns:1fr}.header-actions{justify-content:center}}
+        ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left"><span class="logo">🍽️</span><div><h1>Menús Semanales</h1><p>Tu planificador de cocina</p></div></div>
+        <div class="header-actions">
+            <button class="btn btn-white" onclick="goToCurrentWeek()">📅 Hoy</button>
+            <button class="btn btn-white" onclick="exportData()">📤 Exportar</button>
+            <button class="btn btn-white" onclick="importData()">📥 Importar</button>
+            <button class="btn btn-white" onclick="printMenu()">🖨️ Imprimir</button>
+            <button class="btn btn-white" onclick="openShareModal()">📤 Compartir</button>
+            <button class="btn btn-danger" onclick="showClearModal()">🗑️ Limpiar</button>
+        </div>
+    </header>
+    <nav class="week-nav">
+        <button class="nav-btn" onclick="changeWeek(-1)">◀</button>
+        <div class="week-info"><div class="week-title" id="weekTitle">Semana 1</div><div class="week-dates" id="weekDates">--/-- a --/--</div></div>
+        <button class="nav-btn" onclick="changeWeek(1)">▶</button>
+        <div class="week-selector"><input type="month" id="monthSelect" onchange="goToMonth(this.value)"></div>
+    </nav>
+    <div class="stats-bar">
+        <div class="stat-card"><span class="stat-icon">📝</span><div class="stat-info"><div class="stat-number" id="statTotal">0</div><div class="stat-label">Platos</div></div></div>
+        <div class="stat-card"><span class="stat-icon">✅</span><div class="stat-info"><div class="stat-number" id="statComplete">0</div><div class="stat-label">Días</div></div></div>
+        <div class="stat-card"><span class="stat-icon">📊</span><div class="stat-info"><div class="stat-number" id="statPercent">0%</div><div class="stat-label">Completado</div></div></div>
+    </div>
+    <div class="main-container">
+        <div class="print-header"><h2>🍽️ Menú Semanal</h2><p id="printWeekInfo"></p></div>
+        <div class="menu-grid" id="menuGrid"></div>
+    </div>
+
+    <div class="modal-overlay" id="shareModal">
+        <div class="modal">
+            <h3>📤 Compartir Menú</h3>
+            <p>Elige cómo enviar la semana completa:</p>
+            <div class="share-options">
+                <button class="btn btn-success" onclick="copyToClipboard()">📋 Copiar texto (WhatsApp)</button>
+                <button class="btn btn-primary" onclick="downloadShareableHTML()">📄 Descargar archivo</button>
+                <button class="btn btn-blue" onclick="shareViaNative()">📱 Compartir nativo</button>
+                <button class="btn btn-white" onclick="closeShareModal()" style="margin-top:8px;border:1px solid #ccc;color:var(--text)">❌ Cerrar</button>
+            </div>
+            <div id="sharePreview"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="clearModal">
+        <div class="modal">
+            <h3>🗑️ Limpiar semana</h3>
+            <p>¿Borrar todos los platos de esta semana?</p>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="closeClearModal()">Cancelar</button>
+                <button class="btn btn-danger" onclick="clearCurrentWeek()">Sí, borrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <footer>🍽️ Menús Semanales — Guarda copias con 📤 Exportar</footer>
+
+    <script>
+        const DIAS=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+        const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        const MEALS=[{key:'primer',label:'🥗 Primer',css:'primer'},{key:'segundo',label:'🍖 Segundo',css:'segundo'},{key:'postre',label:'🍰 Postre',css:'postre'}];
+        let offset=0;
+
+        function getMonday(d){const t=new Date(d);const day=t.getDay();t.setDate(t.getDate()-day+(day===0?-6:1));t.setHours(0,0,0,0);return t}
+        function getDates(){const t=new Date();t.setHours(0,0,0,0);const m=getMonday(t);m.setDate(m.getDate()+(offset*7));const d=[];for(let i=0;i<7;i++){const n=new Date(m);n.setDate(n.getDate()+i);d.push(n)}return d}
+        function fd(d){return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}`}
+        function fk(d){return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`}
+        function wn(d){const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const dn=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-dn);const ys=new Date(Date.UTC(t.getUTCFullYear(),0,1));return Math.ceil((((t-ys)/864e5)+1)/7)}
+
+        function ld(dk,mk){return localStorage.getItem(`menu_${dk}_${mk}`)||''}
+        function sd(dk,mk,v){localStorage.setItem(`menu_${dk}_${mk}`,v);stats()}
+
+        function render(){
+            const dates=getDates(),g=document.getElementById('menuGrid');g.innerHTML='';
+            const today=new Date();today.setHours(0,0,0,0);
+            dates.forEach((date,i)=>{
+                const dk=fk(date),isT=date.getTime()===today.getTime();
+                const c=document.createElement('div');c.className=`day-column${isT?' today':''}`;
+                c.innerHTML=`<div class="day-header"><div class="day-name">${DIAS[i]}</div><div class="day-date">${fd(date)}</div></div><div class="day-body">${MEALS.map((m,j)=>{const v=ld(dk,m.key);return`<div class="meal-section"><div class="meal-label ${m.css}">${m.label}</div><textarea class="meal-input ${m.css}" data-date="${dk}" data-meal="${m.key}" placeholder="${m.key==='primer'?'Ej: Ensalada...':m.key==='segundo'?'Ej: Pollo al horno...':'Ej: Fruta...'}" oninput="hi(this)">${v}</textarea></div>${j<MEALS.length-1?'<div class="meal-divider"></div>':''}`}).join('')}</div>`;
+                g.appendChild(c);
+            });
+            winfo(dates);stats();
+        }
+
+        function hi(el){sd(el.dataset.date,el.dataset.meal,el.value)}
+        function winfo(dates){const w=wn(dates[0]),y=dates[0].getFullYear();document.getElementById('weekTitle').textContent=`Semana ${w} — ${y}`;document.getElementById('weekDates').textContent=`${fd(dates[0])} — ${fd(dates[6])} de ${MESES[dates[6].getMonth()]}`;document.getElementById('printWeekInfo').textContent=`Semana ${w} del ${dates[0].getDate()} de ${MESES[dates[0].getMonth()]} al ${dates[6].getDate()} de ${MESES[dates[6].getMonth()]} de ${y}`}
+        function stats(){const dates=getDates();let t=0,c=0;dates.forEach(date=>{const dk=fk(date);let df=0;MEALS.forEach(m=>{if(ld(dk,m.key).trim()){t++;df++}});if(df===MEALS.length)c++});document.getElementById('statTotal').textContent=t;document.getElementById('statComplete').textContent=`${c}/7`;document.getElementById('statPercent').textContent=`${Math.round((t/21)*100)}%`}
+
+        function changeWeek(d){offset+=d;render()}
+        function goToCurrentWeek(){offset=0;render();toast('📅 Semana actual')}
+        function goToMonth(val){if(!val)return;const[y,m]=val.split('-').map(Number);const diff=Math.round((getMonday(new Date(y,m-1,1))-getMonday(new Date()))/(7*864e5));offset=diff;render()}
+
+        function openShareModal(){document.getElementById('shareModal').classList.add('active');genPreview()}
+        function closeShareModal(){document.getElementById('shareModal').classList.remove('active')}
+        function genWeekText(){const d=getDates();let t=`🍽️ MENÚ SEMANAL\nSemana del ${fd(d[0])} al ${fd(d[6])}\n${'─'.repeat(28)}\n\n`;d.forEach((date,i)=>{const dk=fk(date);const p=ld(dk,'primer'),s=ld(dk,'segundo'),po=ld(dk,'postre');if(p||s||po){t+=`📅 ${DIAS[i]} ${fd(date)}\n`;if(p)t+=`  🥗 Primer: ${p}\n`;if(s)t+=`  🍖 Segundo: ${s}\n`;if(po)t+=`  🍰 Postre: ${po}\n`;t+=`\n`}});return t}
+        function genPreview(){document.getElementById('sharePreview').textContent=genWeekText();document.getElementById('sharePreview').style.display='block'}
+
+        async function copyToClipboard(){try{await navigator.clipboard.writeText(genWeekText());toast('✅ Copiado. Pégalo en WhatsApp.');closeShareModal()}catch(e){toast('❌ Usa Ctrl+C manualmente.',true)}}
+        function shareViaNative(){if(navigator.share){navigator.share({title:'Menú Semanal',text:genWeekText()}).then(()=>{toast('✅ Compartido');closeShareModal()}).catch(()=>toast('❌ Cancelado',true))}else copyToClipboard()}
+        function downloadShareableHTML(){const d=getDates();let h=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Menú</title><style>body{font-family:system-ui;max-width:800px;margin:20px auto;padding:15px;background:#fdf6ee}h1{text-align:center;color:#e67e22}table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden}th,td{padding:10px;text-align:left;border-bottom:1px solid #eee}th{background:#2c3e50;color:#fff}.footer{text-align:center;margin-top:20px;font-size:0.75rem;color:#999}</style></head><body><h1>🍽️ Menú Semanal</h1><table><tr><th>Día</th><th>Primer</th><th>Segundo</th><th>Postre</th></tr>${d.map((date,i)=>{const dk=fk(date);return`<tr><td><strong>${DIAS[i]}<br><small>${fd(date)}</small></strong></td><td>${ld(dk,'primer')||'-'}</td><td>${ld(dk,'segundo')||'-'}</td><td>${ld(dk,'postre')||'-'}</td></tr>`}).join('')}</table><div class="footer">Generado con Planificador de Menús</div></body></html>`;const b=new Blob([h],{type:'text/html'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`menu_${fk(d[0])}.html`;a.click();URL.revokeObjectURL(u);toast('📄 Archivo descargado');closeShareModal()}
+
+        function showClearModal(){document.getElementById('clearModal').classList.add('active')}
+        function closeClearModal(){document.getElementById('clearModal').classList.remove('active')}
+        function clearCurrentWeek(){const d=getDates();d.forEach(date=>{const dk=fk(date);MEALS.forEach(m=>localStorage.removeItem(`menu_${dk}_${m.key}`))});closeClearModal();render();toast('🗑️ Limpiado')}
+
+        function exportData(){const d={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith('menu_'))d[k]=localStorage.getItem(k)}const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`menus_${fk(new Date())}.json`;a.click();URL.revokeObjectURL(u);toast('📤 Exportado')}
+        function importData(){const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);Object.keys(d).forEach(k=>{if(k.startsWith('menu_'))localStorage.setItem(k,d[k])});render();toast('📥 Importado')}catch(err){toast('❌ Archivo inválido',true)}};r.readAsText(f)};i.click()}
+        function printMenu(){window.print()}
+        function toast(m,e=false){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className=`toast${e?' error':''}`;t.innerHTML=`<span>${m}</span>`;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(100%)';t.style.transition='all .4s';setTimeout(()=>t.remove(),400)},2500)}
+
+        document.addEventListener('DOMContentLoaded',()=>{render();document.getElementById('monthSelect').value=`${new Date()
